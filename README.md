@@ -81,3 +81,5 @@ npm test
   curl -X DELETE http://localhost:3000/file/delete/1 \
     -H "Authorization: Bearer <ACCESS_TOKEN>"
   ```
+
+Примечание: для простоты проверки я захардкодил переменные окружения сразу в .env
