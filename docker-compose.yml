@@ -1,0 +1,47 @@
+version: '3.9'
+
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: erp_app
+      MYSQL_USER: erp_user
+      MYSQL_PASSWORD: erp_pass
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-prootpass']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PORT: 3000
+      DB_DIALECT: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: erp_app
+      DB_USER: erp_user
+      DB_PASSWORD: erp_pass
+      JWT_ACCESS_SECRET: 763f398d0cc30b46b9ecae9400bf5b1f2ae7c63fccaf76024ffd8f4e1b26c040
+      JWT_REFRESH_SECRET: 6a1f5824d3350c6b226c5d99d21fbcc270b03c297f0ab02fe7d9f602d313d5ca
+      ACCESS_TOKEN_TTL_MINUTES: 10
+      REFRESH_TOKEN_TTL_MINUTES: 4320
+      FILE_STORAGE_PATH: /app/storage
+      SYNC_DB_ON_BOOT: 'true'
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./storage:/app/storage
+
+volumes:
+  mysql_data: {}
